@@ -14,7 +14,8 @@ app.use(bodyParser.urlencoded({extended: true}))
 var dbUri = 'mongodb://localhost:27017/api';
 var dbConnection = mongoose.createConnection(dbUri);
 
-var postSchema = new mongoose.Schema({
+var Schema = mongoose.Schema
+var postSchema = new Schema({
   title: {
     type: String,
     required: true,
@@ -22,6 +23,15 @@ var postSchema = new mongoose.Schema({
     match: /^([\w ,.!?]{1,100})$/
   },
   text: {type: String, required: true, max: 2000},
+  followers: [Schema.Types.ObjectId],
+  meta: Schema.Types.Mixed,
+  comments: [{
+    text: {type: String, trim: true, max: 1000},
+    author: {
+      id: {type: Schema.Types.ObjectId, ref: 'User'},
+      name: String
+    }
+  }],
   viewCounter: Number,
   published: Boolean,
   createdAd: {
@@ -47,12 +57,35 @@ app.get('/posts', (req, res, next) => {
   .catch(next)
 })
 
-app.post('/posts', (req, res, next) => {
+app.get('/posts/:id', (req, res, next) => {
+  Post.findById(req.params.id)
+  .then(post => {
+    if (!post) {
+      res.sendStatus(404)
+      return;
+    }
+    res.send(post)
+  })
+  .catch(err => res.status(400).send(err))
+})
+
+app.post('/posts', (req, res) => {
   var post = new Post(req.body)
   post.validate()
   .then(() => post.save())
   .then((results) => res.send(results))
   .catch(error => res.status(400).send(error))
+})
+
+app.put('/posts/:id', (req, res) => {
+  Post.findById(req.params.id)
+  .then(post => {
+    if (!post) { res.sendStatus(404); return; }
+    post.set(req.body)
+    return post.save()
+  })
+  .then(result => res.send(result))
+  .catch(err => res.status(400).send(err))
 })
 
 app.use(errorHandler());
