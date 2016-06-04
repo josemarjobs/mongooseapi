@@ -72,7 +72,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/posts', (req, res, next) => {
-  Post.find({})
+  Post.find({}, {id: true, title: true}, {limit: 100, sort: {_id: -1}})
   .then(posts => res.json(posts))
   .catch(next)
 })
