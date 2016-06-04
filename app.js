@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');
 var logger = require('morgan');
 var errorHandler = require('errorhandler');
 
+
 var app = express();
 
 app.use(logger('dev'))
@@ -20,7 +21,13 @@ var postSchema = new Schema({
     type: String,
     required: true,
     trim: true,
-    match: /^([\w ,.!?]{1,100})$/
+    match: /^([\w ,.!?]{1,100})$/,
+    set: function(value) {
+      return value.toUpperCase();
+    },
+    get: function(value) {
+      return value.toLowerCase();
+    }
   },
   text: {type: String, required: true, max: 2000},
   followers: [Schema.Types.ObjectId],
@@ -29,10 +36,23 @@ var postSchema = new Schema({
     text: {type: String, trim: true, max: 1000},
     author: {
       id: {type: Schema.Types.ObjectId, ref: 'User'},
-      name: String
+      name: String,
+      role: {
+        type: String,
+        enum: ['user', 'admin', 'staff']
+      }
     }
   }],
-  viewCounter: Number,
+  viewCounter: {
+    type: Number,
+    validate: {
+      validator: function(value) {
+        if (value < 0) {return false}
+        return true;
+      },
+      message: '{VALUE} is not greater than 0'
+    }
+  },
   published: Boolean,
   createdAd: {
     type: Date,
@@ -88,6 +108,11 @@ app.put('/posts/:id', (req, res) => {
   .catch(err => res.status(400).send(err))
 })
 
+app.delete('/posts/:id', (req, res, next) => {
+  Post.remove({_id: req.params.id})
+  .then(result => res.send(result))
+  .catch(err => res.status(400).send(err))
+})
 app.use(errorHandler());
 
 var server = require('http').createServer(app);
