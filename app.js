@@ -67,7 +67,8 @@ var postSchema = new Schema({
     type: Date,
     default: Date.now(),
     required: true
-  }
+  },
+  photo: Buffer
 })
 
 postSchema.virtual('hasComments').get(function() {
