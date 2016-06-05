@@ -92,6 +92,16 @@ postSchema.pre('validate', function(next) {
   next()
 })
 
+postSchema.statics.staticMethod = function(callback) {
+  console.log("Static method executed");
+  if (callback) {
+    return callback('Static Method callback')
+  }
+  return new Promise((resolve, reject) => {
+    resolve('Static Method Resolved')
+  })
+}
+
 var userSchema = new Schema({
   name: {type: String, required: true},
   role: {type: String, enum: enumRoles}

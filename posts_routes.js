@@ -2,9 +2,10 @@
 module.exports = function (app, Post) {
 
   app.get('/posts', (req, res, next) => {
-    Post.find({}, {}, {limit: 100, sort: {_id: -1}})
-    .then(posts => res.json(posts))
-    .catch(next)
+    Post.staticMethod().then( s => res.send(s))
+    // Post.find({}, {}, {limit: 100, sort: {_id: -1}})
+    // .then(posts => res.json(posts))
+    // .catch(next)
   })
 
   app.get('/posts/:id', (req, res, next) => {
