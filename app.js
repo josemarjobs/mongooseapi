@@ -65,6 +65,11 @@ var postSchema = new Schema({
     required: true
   }
 })
+
+postSchema.virtual('hasComments').get(function() {
+  return this.comments.length > 0
+})
+
 var Post = dbConnection.model('Post', postSchema, 'posts');
 
 app.get('/', (req, res) => {
@@ -84,7 +89,7 @@ app.get('/posts/:id', (req, res, next) => {
       res.sendStatus(404)
       return;
     }
-    res.send(post)
+    res.send(post.toJSON({virtuals: true}))
   })
   .catch(err => res.status(400).send(err))
 })
