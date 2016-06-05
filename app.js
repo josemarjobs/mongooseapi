@@ -101,7 +101,15 @@ postSchema.statics.staticMethod = function(callback) {
     resolve('Static Method Resolved')
   })
 }
-
+postSchema.methods.instanceMethod = function(callback) {
+  console.log("Instance Method executed");
+  if (callback) {
+    return callback('Instance method CALLBACK')
+  }
+  return new Promise((resolve, reject) => {
+    resolve('Instance method RESOLVE')
+  })
+}
 var userSchema = new Schema({
   name: {type: String, required: true},
   role: {type: String, enum: enumRoles}
