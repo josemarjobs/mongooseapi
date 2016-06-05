@@ -54,12 +54,12 @@ var postSchema = new Schema({
     }
   },
   published: Boolean,
-  createdAd: {
+  createdAt: {
     type: Date,
     default: Date.now(),
     required: true
   },
-  updatedAd: {
+  updatedAt: {
     type: Date,
     default: Date.now(),
     required: true
@@ -70,6 +70,10 @@ postSchema.virtual('hasComments').get(function() {
   return this.comments.length > 0
 })
 
+postSchema.pre('save', function(next) {
+  this.updatedAt = new Date()
+  next();
+})
 var Post = dbConnection.model('Post', postSchema, 'posts');
 
 app.get('/', (req, res) => {
@@ -77,7 +81,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/posts', (req, res, next) => {
-  Post.find({}, {id: true, title: true}, {limit: 100, sort: {_id: -1}})
+  Post.find({}, {}, {limit: 100, sort: {_id: -1}})
   .then(posts => res.json(posts))
   .catch(next)
 })
