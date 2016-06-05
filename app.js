@@ -88,9 +88,6 @@ postSchema.pre('validate', function(next) {
   next()
 })
 
-postSchema.post('save', function(document) {
-  console.log(document, "was saved.");
-})
 var Post = dbConnection.model('Post', postSchema, 'posts');
 
 app.get('/', (req, res) => {
